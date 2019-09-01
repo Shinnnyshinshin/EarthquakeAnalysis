@@ -98,9 +98,9 @@ magSource: network that originally authored the reported magnitude for this even
 ```
 
 
-# Map
+# Map (static)
 
-Because we have 
+Because we have lattitude and logitude data we can make this a static map. 
 
 ```{r}
 

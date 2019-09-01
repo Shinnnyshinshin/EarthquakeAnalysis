@@ -1,0 +1,115 @@
+---
+title: "R Notebook"
+output:
+  html_document:
+    df_print: paged
+---
+
+This notebook will have some mappings o
+
+
+```{r, echo=F, warning=F, message=F}
+library(ggplot2, warn.conflicts=F, quietly=T)
+library(maps, warn.conflicts=F, quietly=T)
+library(ggmap, warn.conflicts=F, quietly=T)
+library(dplyr, warn.conflicts=F, quietly=T)
+library(factoextra, warn.conflicts=F, quietly=T)
+library(Hmisc, warn.conflicts=F, quietly=T)
+library(gridExtra, warn.conflicts=F, quietly=T)
+library(lubridate, warn.conflicts=F, quietly=T)
+library(corrplot, warn.conflicts=F, quietly=T)
+library(vcd, warn.conflicts=F, quietly=T)
+library(gmodels, warn.conflicts=F, quietly=T)
+
+```
+
+The
+
+```{r}
+if ("all_month.csv" %in% dir(".") == FALSE) {
+  url <- "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_month.csv"
+  download.file(url = url, destfile = "all_month.csv")
+}
+quakes <- read.csv("all_month.csv", header=TRUE, sep=',', stringsAsFactors = FALSE)
+```
+
+How many lines are in our dataset? 
+
+```{r}
+  dim(quakes)
+```
+
+Increasing date ordering. 
+
+```{r}
+quakes = arrange(quakes, -row_number())
+```
+
+Lets have a look at the data. 
+
+```{r}
+head(quakes)
+```
+
+```{r}
+tail(quakes)
+```
+
+```{r}
+str(quakes)
+```
+
+## a short description of the variables 
+
+time: time of event
+latitude: decimal degrees latitude. Negative values for southern latitudes. Range is [-90.0,90.0]
+longitude: decimal degrees longitude. Negative values for western longitudes. [-180.0,180.0]
+depth: depth of the event in kilometers
+mag: magnitude for the event. Range [-1.0, 10.0]
+magType: method or algorithm used to calculate the preferred magnitude for the event
+nst: total number of seismic stations used to determine earthquake location
+gap: largest azimuthal gap between azimuthally adjacent stations (in degrees)
+dmin: horizontal distance from the epicenter to the nearest station (in degrees)
+rms: root-mean-square (RMS) travel time residual, in sec, using all weights
+net: ID of  data contributor. Identifies the network considered to be the preferred source of information for this event
+id: unique identifier for the event. This is the current preferred id for the event, and may change over time
+updated: time when the event was most recently updated
+place: textual description of named geographic region near to the event. This may be a city name, or a Flinn-Engdahl Region name
+type: type of seismic event
+horizontalError: uncertainty of reported location of the event in kilometers
+depthError: uncertainty of reported depth of the event in kilometers
+magError: uncertainty of reported magnitude of the event
+magNst: total number of seismic stations used to calculate the magnitude
+status: indicates whether the event has been reviewed by a human
+locationSource: network that originally authored the reported location of this event
+magSource: network that originally authored the reported magnitude for this event
+
+## A sort exploratory analysis
+
+```{r}
+(numeric_vars <- names(which(sapply(quakes, class) == "numeric")))
+
+(integer_vars <- names(which(sapply(quakes, class) == "ineger")))
+
+(factor_vars <- names(which(sapply(quakes, class) == "factor")))
+
+(character_vars <- names(which(sapply(quakes, class) == "character")))
+
+```
+
+
+# Map
+
+Because we have 
+
+```{r}
+
+world <- map_data('world')
+
+title <- paste("Earthquake map from ", paste(quakes$time[1], quakes$time[nrow(quakes)], sep = " to "))
+
+p <- ggplot() + geom_map(data = world, map = world, aes(x = long, y=lat, group=group, map_id=region), fill="white", colour="#7f7f7f", size=0.5)
+p <- p + geom_point(data = quakes, aes(x=longitude, y = latitude, colour = mag)) + scale_colour_gradient(low = "#fee8c8",high = "#e34a33") + ggtitle(title)
+p
+
+```

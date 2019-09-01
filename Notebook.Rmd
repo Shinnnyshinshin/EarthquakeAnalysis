@@ -3,6 +3,7 @@ title: "R Notebook"
 output:
   html_document:
     df_print: paged
+  pdf_document: default
 ---
 
 This notebook will have some mappings o
@@ -20,6 +21,9 @@ library(lubridate, warn.conflicts=F, quietly=T)
 library(corrplot, warn.conflicts=F, quietly=T)
 library(vcd, warn.conflicts=F, quietly=T)
 library(gmodels, warn.conflicts=F, quietly=T)
+library(htmlwidgets, warn.conflicts=F, quietly=T)
+library(leaflet, warn.conflicts=F, quietly=T)
+library(gganimate, warn.conflicts = F, quietly=T)
 
 ```
 
@@ -113,3 +117,17 @@ p <- p + geom_point(data = quakes, aes(x=longitude, y = latitude, colour = mag))
 p
 
 ```
+
+# Map (interactive)
+```{r}
+quakes %>% leaflet() %>% addTiles() %>% 
+  addMarkers(~longitude, ~latitude,
+             popup = (paste("Place: ", quakes$place, "<br>", 
+                            "Id: ", quakes$id, "<br>",
+                            "Time: ", quakes$time, "<br>",
+                            "Magnitude: ", quakes$mag, " m <br>",
+                            "Depth: ", quakes$depth)),
+             clusterOptions = markerClusterOptions())
+```
+
+# Map (Animation)
